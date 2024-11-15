@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container2-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container2
+  template:
+    metadata:
+      labels:
+        app: container2
+    spec:
+      containers:
+      - name: container2
+        image: rborad/container2:Kube
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 2000
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /rushil_PV_dir
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: pvc-rushil
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: container2-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: container2
+  ports:
+    - protocol: TCP
+      port: 90
+      targetPort: 2000

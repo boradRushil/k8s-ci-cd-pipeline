@@ -1,0 +1,43 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  # Step 1: Build Docker image for container2
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Step 1: Building Docker image for container2..."
+        docker build -t us-central1-docker.pkg.dev/adv-cloud-k8s/k8s/rborad/container2:Kube -f Dockerfile .
+        echo "Docker image for container2 built successfully."
+
+  # Step 2: Push Docker image for container2
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Step 2: Pushing Docker image for container2..."
+        docker push us-central1-docker.pkg.dev/adv-cloud-k8s/k8s/rborad/container2:Kube
+        echo "Docker image for container2 pushed successfully."
+
+  # Step 3: Authenticate to GKE
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Step 3: Authenticating to GKE..."
+        gcloud container clusters get-credentials cloud-k8s-cluster --region us-central1-c
+        echo "Authenticated to GKE successfully."
+
+  # Step 4: Apply Kubernetes manifests
+  - name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Step 4: Applying Kubernetes manifests..."
+        kubectl apply -f deploymentC2.yaml
+        echo "Kubernetes manifests applied successfully."
